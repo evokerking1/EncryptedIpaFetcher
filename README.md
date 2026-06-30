@@ -4,6 +4,7 @@ SwiftUI iOS app scaffold inspired by [ipatool](https://github.com/majd/ipatool):
 - Apple ID sign-in form
 - App Store software search
 - IPA download request queue/status UI
+- Live Activity showing active download progress
 
 ## Local development
 

@@ -52,15 +52,53 @@ final class ContentViewModel: ObservableObject {
         jobs.insert(job, at: 0)
 
         guard let index = jobs.firstIndex(where: { $0.id == job.id }) else { return }
-        jobs[index].status = .downloading(0.1)
+        jobs[index].status = .downloading(0.0)
+
+        if #available(iOS 16.1, *) {
+            await DownloadLiveActivityManager.shared.start(
+                for: job.id,
+                appName: app.trackName,
+                bundleId: app.bundleId
+            )
+        }
 
         do {
+            for step in 1 ... 7 {
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                let progress = Double(step) / 10.0
+                jobs[index].status = .downloading(progress)
+
+                if #available(iOS 16.1, *) {
+                    await DownloadLiveActivityManager.shared.update(
+                        jobID: job.id,
+                        progress: progress,
+                        statusMessage: "Downloading \(Int(progress * 100))%"
+                    )
+                }
+            }
+
             let url = try await service.downloadIPA(for: app)
             jobs[index].status = .completed(url)
             errorMessage = nil
+
+            if #available(iOS 16.1, *) {
+                await DownloadLiveActivityManager.shared.end(
+                    jobID: job.id,
+                    progress: 1.0,
+                    statusMessage: "Download complete"
+                )
+            }
         } catch {
             jobs[index].status = .failed(error.localizedDescription)
             errorMessage = error.localizedDescription
+
+            if #available(iOS 16.1, *) {
+                await DownloadLiveActivityManager.shared.end(
+                    jobID: job.id,
+                    progress: 0.0,
+                    statusMessage: "Download failed"
+                )
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 name: EncryptedIpaFetcher
 options:
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "16.1"
 settings:
   base:
     PRODUCT_BUNDLE_IDENTIFIER: com.evokerking1.encryptedipafetcher
@@ -13,11 +13,16 @@ targets:
     platform: iOS
     sources:
       - EncryptedIpaFetcher
+      - Shared
     resources:
       - EncryptedIpaFetcher/Resources
+    dependencies:
+      - target: EncryptedIpaFetcherLiveActivity
+        embed: true
     info:
       path: EncryptedIpaFetcher/Info.plist
       properties:
+        NSSupportsLiveActivities: true
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -30,3 +35,19 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+  EncryptedIpaFetcherLiveActivity:
+    type: app-extension
+    platform: iOS
+    sources:
+      - EncryptedIpaFetcherLiveActivity
+      - Shared
+    info:
+      path: EncryptedIpaFetcherLiveActivity/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        NSSupportsLiveActivities: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.evokerking1.encryptedipafetcher.liveactivity
+        SKIP_INSTALL: true
