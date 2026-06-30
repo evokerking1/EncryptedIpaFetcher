@@ -4,7 +4,7 @@ options:
     iOS: "16.1"
 settings:
   base:
-    PRODUCT_BUNDLE_IDENTIFIER: com.evokerking1.encryptedipafetcher
+    PRODUCT_BUNDLE_IDENTIFIER: dev.evokerking.encryptedipafetcher
     SWIFT_VERSION: 5.9
     TARGETED_DEVICE_FAMILY: "1,2"
 targets:
@@ -49,5 +49,5 @@ targets:
         NSSupportsLiveActivities: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.evokerking1.encryptedipafetcher.liveactivity
+        PRODUCT_BUNDLE_IDENTIFIER: dev.evokerking.encryptedipafetcher.liveactivity
         SKIP_INSTALL: true
