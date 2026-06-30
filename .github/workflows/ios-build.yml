@@ -5,6 +5,10 @@ on:
     branches: ["main", "master"]
   pull_request:
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build-ios:
     runs-on: macos-latest
