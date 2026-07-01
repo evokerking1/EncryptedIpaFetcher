@@ -1,0 +1,48 @@
+"tab.initiator" = "Initiator";
+"tab.queue" = "Queue";
+"tab.history" = "History";
+
+"navigation.initiator" = "Download Initiator";
+"navigation.queue" = "Download Queue & Status";
+"navigation.history" = "Download History";
+
+"login.title" = "Apple Account";
+"login.appleIdPlaceholder" = "Apple ID";
+"login.passwordPlaceholder" = "Password";
+"login.twoFactorPlaceholder" = "2FA Code";
+"login.signIn" = "Sign In";
+"login.signingIn" = "Signing In...";
+
+"search.title" = "Find Apps";
+"search.placeholder" = "Search App Store app";
+"search.getIpaButton" = "Get IPA";
+"search.noResults" = "No app results found.";
+
+"queue.empty" = "No active downloads in queue.";
+"queue.preparing" = "Preparing download";
+"queue.requestingDownload" = "Requesting download URL";
+"queue.downloadComplete" = "Download complete";
+"queue.downloadFailed" = "Download failed";
+"queue.statusQueued" = "Queued";
+"queue.statusPreparing" = "Preparing";
+"queue.statusDownloading" = "Downloading %d%%";
+"queue.statusCompleted" = "Completed: %@";
+"queue.statusFailed" = "Failed: %@";
+
+"history.empty" = "No completed or failed downloads yet.";
+
+"auth.signedIn" = "Signed in. Search for an app and queue a download.";
+"auth.signedInNamed" = "Signed in as %@.";
+
+"alert.errorTitle" = "Error";
+"alert.unknownError" = "Unknown error";
+"button.ok" = "OK";
+
+"error.invalidCredentials" = "Please enter a valid Apple ID and password.";
+"error.invalidSearchTerm" = "Search term must be at least 2 characters.";
+"error.notAuthenticated" = "You must sign in with an Apple ID before downloading.";
+"error.invalidResponse" = "The App Store service returned an unexpected response.";
+"error.authenticationFailed" = "Authentication failed: %@";
+"error.authenticationUnknown" = "Authentication failed.";
+"error.noDownloadURL" = "No downloadable IPA URL returned for this app/version.";
+"error.saveAuth" = "Failed to securely store authentication data.";
