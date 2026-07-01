@@ -11,7 +11,7 @@ actor DownloadLiveActivityManager {
         let attributes = DownloadActivityAttributes(appName: appName, bundleId: bundleId)
         let initialState = DownloadActivityAttributes.ContentState(
             progress: 0.0,
-            statusMessage: "Starting download"
+            statusMessage: L10n.text("queue.preparing")
         )
 
         do {
