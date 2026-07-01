@@ -4,75 +4,184 @@ struct ContentView: View {
     @StateObject var viewModel: ContentViewModel
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                LinearGradient(
-                    colors: [.blue.opacity(0.8), .indigo.opacity(0.8), .black.opacity(0.85)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+        ZStack {
+            LinearGradient(
+                colors: [.blue.opacity(0.75), .indigo.opacity(0.78), .black.opacity(0.88)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 16) {
-                        loginCard
-                        searchCard
-                        jobsCard
+            TabView {
+                initiatorTab
+                    .tabItem {
+                        Label(L10n.text("tab.initiator"), systemImage: "paperplane.fill")
                     }
-                    .padding()
+
+                queueTab
+                    .tabItem {
+                        Label(L10n.text("tab.queue"), systemImage: "list.bullet.rectangle.portrait.fill")
+                    }
+
+                historyTab
+                    .tabItem {
+                        Label(L10n.text("tab.history"), systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                    }
+            }
+        }
+        .alert(L10n.text("alert.errorTitle"), isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button(L10n.text("button.ok"), role: .cancel) {}
+        } message: {
+            Text(viewModel.errorMessage ?? L10n.text("alert.unknownError"))
+        }
+    }
+
+    private var initiatorTab: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    if let infoMessage = viewModel.infoMessage, !infoMessage.isEmpty {
+                        Text(infoMessage)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundStyle(.white)
+                            .padding(12)
+                            .liquidGlassCard()
+                    }
+
+                    loginCard
+                    searchCard
                 }
+                .padding()
             }
-            .navigationTitle("Encrypted IPA Fetcher")
+            .navigationTitle(L10n.text("navigation.initiator"))
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .alert("Error", isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
-            )) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(viewModel.errorMessage ?? "Unknown error")
+        }
+    }
+
+    private var queueTab: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    if viewModel.activeJobs.isEmpty {
+                        Text(L10n.text("queue.empty"))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundStyle(.secondary)
+                            .padding(12)
+                            .liquidGlassCard()
+                    } else {
+                        ForEach(viewModel.activeJobs) { job in
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(job.appName).font(.headline)
+                                Text(job.bundleId)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(viewModel.statusLabel(for: job.status))
+                                    .font(.subheadline)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .liquidGlassCard()
+                        }
+                    }
+                }
+                .padding()
             }
+            .navigationTitle(L10n.text("navigation.queue"))
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+    }
+
+    private var historyTab: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    if viewModel.historyJobs.isEmpty {
+                        Text(L10n.text("history.empty"))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundStyle(.secondary)
+                            .padding(12)
+                            .liquidGlassCard()
+                    } else {
+                        ForEach(viewModel.historyJobs) { job in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(job.appName).font(.headline)
+                                    Spacer()
+                                    if let finishedAt = job.finishedAt {
+                                        Text(finishedAt, style: .time)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+
+                                Text(job.bundleId)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+
+                                Text(viewModel.statusLabel(for: job.status))
+                                    .font(.subheadline)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .liquidGlassCard()
+                        }
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle(L10n.text("navigation.history"))
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
     }
 
     private var loginCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Apple Account", systemImage: "person.crop.circle.badge.checkmark")
+            Label(L10n.text("login.title"), systemImage: "person.crop.circle.badge.checkmark")
                 .font(.headline)
 
-            TextField("Apple ID", text: $viewModel.appleID)
+            TextField(L10n.text("login.appleIdPlaceholder"), text: $viewModel.appleID)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .padding(10)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
 
-            SecureField("Password", text: $viewModel.password)
+            SecureField(L10n.text("login.passwordPlaceholder"), text: $viewModel.password)
                 .padding(10)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
 
+            if viewModel.requiresTwoFactorCode {
+                TextField(L10n.text("login.twoFactorPlaceholder"), text: $viewModel.twoFactorCode)
+                    .keyboardType(.numberPad)
+                    .padding(10)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+            }
+
             Button {
-                viewModel.login()
+                Task { await viewModel.login() }
             } label: {
                 HStack {
                     Image(systemName: "lock.open")
-                    Text(viewModel.isAuthenticating ? "Signing In..." : "Sign In")
+                    Text(viewModel.isAuthenticating ? L10n.text("login.signingIn") : L10n.text("login.signIn"))
                 }
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(viewModel.appleID.isEmpty || viewModel.password.isEmpty)
+            .disabled(viewModel.appleID.isEmpty || viewModel.password.isEmpty || viewModel.isAuthenticating)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .liquidGlassCard()
     }
 
     private var searchCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Find Apps", systemImage: "magnifyingglass")
+            Label(L10n.text("search.title"), systemImage: "magnifyingglass")
                 .font(.headline)
 
             HStack {
-                TextField("Search App Store app", text: $viewModel.searchTerm)
+                TextField(L10n.text("search.placeholder"), text: $viewModel.searchTerm)
                     .padding(10)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
 
@@ -86,6 +195,7 @@ struct ContentView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(viewModel.searchTerm.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
             ForEach(viewModel.results.prefix(8)) { app in
@@ -110,56 +220,38 @@ struct ContentView: View {
 
                     Spacer()
 
-                    Button("Get IPA") {
+                    Button(L10n.text("search.getIpaButton")) {
                         Task { await viewModel.requestDownload(for: app) }
                     }
                     .buttonStyle(.bordered)
                 }
                 .padding(10)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                .liquidGlassCard()
             }
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .liquidGlassCard()
     }
+}
 
-    private var jobsCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Download Queue", systemImage: "arrow.down.circle")
-                .font(.headline)
-
-            if viewModel.jobs.isEmpty {
-                Text("No download requests yet")
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(viewModel.jobs) { job in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(job.appName).font(.subheadline.bold())
-                        Text(job.bundleId).font(.caption).foregroundStyle(.secondary)
-                        statusText(for: job.status)
-                            .font(.caption)
-                    }
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-                }
-            }
-        }
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+private struct LiquidGlassCardModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(.white.opacity(0.24), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.22), radius: 12, y: 8)
     }
+}
 
-    private func statusText(for status: DownloadJob.Status) -> Text {
-        switch status {
-        case .pending:
-            return Text("Pending")
-        case let .downloading(progress):
-            return Text("Downloading \(Int(progress * 100))%")
-        case let .completed(url):
-            return Text("Completed: \(url.lastPathComponent)")
-        case let .failed(message):
-            return Text("Failed: \(message)")
-        }
+private extension View {
+    func liquidGlassCard() -> some View {
+        modifier(LiquidGlassCardModifier())
     }
 }
 
